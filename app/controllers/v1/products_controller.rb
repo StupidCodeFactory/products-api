@@ -21,7 +21,23 @@ class V1::ProductsController < ApplicationController
     end
   end
 
+  def update
+    product = Product.find(params.require(:id))
+    product.assign_attributes(product_params)
 
+    if product.valid?
+      product.save
+      render json: product
+    else
+      render json: { error: product.errors }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    product = Product.find(params.require(:id))
+    product.destroy!
+    head :ok
+  end
   private
 
   def product_params
