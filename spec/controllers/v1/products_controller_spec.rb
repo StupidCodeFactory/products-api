@@ -57,15 +57,17 @@ RSpec.describe V1::ProductsController, type: :controller do
   end
 
   describe 'PATCH /v1/products/:id' do
+    let(:product_params) do
+      {
+        id: product_id,
+        product: { name: 'an updated product', price_in_cents: 1000 }
+      }
+    end
 
     context 'with an exist product id' do
-      let(:product) { create :product }
-      let(:product_params) do
-        {
-          id: product.id,
-          product: { name: 'an updated product', price_in_cents: 1000 }
-        }
-      end
+
+      let(:product)    { create :product }
+      let(:product_id) { product.id }
 
       it 'updates the product' do
         expect {
@@ -84,15 +86,16 @@ RSpec.describe V1::ProductsController, type: :controller do
         include_examples 'invalid product params'
       end
 
-      context 'with an unknown product id' do
-        before do
-          product_params[:id] = 'unknown_id'
-          patch :update, params: product_params
-        end
+    end
 
-        include_examples 'renders 404'
+    context 'with an unknown product id' do
+      let(:product_id) { 'unknown_id' }
+
+      before do
+        patch :update, params: product_params
       end
 
+      include_examples 'renders 404'
     end
 
   end
