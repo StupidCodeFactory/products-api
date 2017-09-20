@@ -1,5 +1,14 @@
 class V1::ProductsController < ApplicationController
 
+  def index
+    products = Product.all
+    render json: products
+  end
+
+  def show
+    render json: Product.find(params.require(:id))
+  end
+
   def create
     product = Product.new(product_params)
 

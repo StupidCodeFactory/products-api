@@ -2,6 +2,42 @@ require 'rails_helper'
 
 RSpec.describe V1::ProductsController, type: :controller do
 
+  let(:parsed_json) { JSON.parse(response.body) }
+
+  def expect_product(as_object, product)
+    expect(as_object['name']).to eq(product.name)
+    expect(as_object['description']).to eq(product.description)
+    expect(as_object['price_in_cents']).to eq(product.price_in_cents)
+    expect(
+      parse_json_time(as_object['updated_at']).to_i
+    ).to eq(product.updated_at.to_i)
+    expect(
+      parse_json_time(as_object['created_at']).to_i
+    ).to eq(product.created_at.to_i)
+  end
+
+  describe 'GET /v1/products/:id' do
+    let(:product) { create :product }
+
+    it 'returns the product details' do
+      get :show, params: { id: product.id }
+      expect_product(parsed_json, product)
+    end
+  end
+
+  describe 'GET /v1/products' do
+    let!(:products) { create_list :product, 3 }
+
+    it 'returns the list of products' do
+      get :index
+
+      products.each do |product|
+        as_object = parsed_json.detect { |attributes| attributes['id'] == product.id }
+        expect_product(as_object, product)
+      end
+    end
+  end
+
   describe 'POST /v1/products' do
     let(:product_params) do
       {
@@ -27,8 +63,6 @@ RSpec.describe V1::ProductsController, type: :controller do
         product_params[:product][:price_in_cents] = ''
         post :create, params: product_params
       end
-
-      let(:parsed_json) { JSON.parse(response.body) }
 
       it 'returns an error' do
         expect(parsed_json).to match(
