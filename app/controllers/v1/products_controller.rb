@@ -4,9 +4,10 @@ class V1::ProductsController < ApplicationController
     product = Product.new(product_params)
 
     if product.valid?
+      product.save
       render json: product
     else
-      render json: { error: product.errors }
+      render json: { error: product.errors }, status: :unprocessable_entity
     end
   end
 

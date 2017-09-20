@@ -22,15 +22,26 @@ RSpec.describe V1::ProductsController, type: :controller do
     end
 
     context 'when passing invalide data' do
+
       before do
         product_params[:product][:price_in_cents] = ''
+        post :create, params: product_params
       end
 
+      let(:parsed_json) { JSON.parse(response.body) }
+
       it 'returns an error' do
-        expect {
-          post :create, params: product_params
-        }.to_not raise_error
-        expect(JSON.parse(response.body)).to have_key('error')
+        expect(parsed_json).to match(
+                                 {
+                                   'error' => {
+                                     'price_in_cents' => ['is not a number']
+                                   }
+                                 }
+                               )
+      end
+
+      it 'has a relevant error HTTP status code' do
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end
