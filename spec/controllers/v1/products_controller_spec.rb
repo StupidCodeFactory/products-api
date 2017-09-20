@@ -19,9 +19,18 @@ RSpec.describe V1::ProductsController, type: :controller do
   describe 'GET /v1/products/:id' do
     let(:product) { create :product }
 
-    it 'returns the product details' do
-      get :show, params: { id: product.id }
-      expect_product(parsed_json, product)
+    describe 'with an existing product id' do
+      it 'returns the product details' do
+        get :show, params: { id: product.id }
+        expect_product(parsed_json, product)
+      end
+    end
+
+    describe 'with an unknown product id' do
+      it 'returns a 404' do
+        get :show, params: { id: 'unknown_id' }
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 

@@ -6,7 +6,8 @@ class V1::ProductsController < ApplicationController
   end
 
   def show
-    render json: Product.find(params.require(:id))
+    product = Product.find(params.require(:id))
+    render json: product
   end
 
   def create
